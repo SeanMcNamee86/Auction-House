@@ -1,0 +1,55 @@
+@model List<Auction>
+
+@{
+    string? themeOpposite = @Context.Session.GetString("ThemeOpposite").ToLower();
+    string? theme = @Context.Session.GetString("Theme").ToLower();
+
+}
+
+<h1>All Auctions:</h1>
+
+@foreach (Auction a in Model)
+{
+    @if (a.isFinished == false)
+    {
+        <div class="card bg-@theme shadow-lg-@themeOpposite p-5 d-flex flex-row align-items-center text-@themeOpposite mb-3">
+    <div>
+        <a asp-controller="Auction" asp-action="GetOneAuction" asp-route-oneAuctionId="@a.AuctionId">
+            <img class="homeImg border border-@themeOpposite border-1" src="@a.ImgURL" alt="Auction Img">
+        </a>
+
+    </div>
+
+    <div class="card-body">
+        <div class="card-title">
+            <h2>
+                <a asp-controller="Auction" asp-action="GetOneAuction" asp-route-oneauctionId="@a.AuctionId"
+                    class="text-@themeOpposite text-decoration-none">
+                    @a.Name
+                </a>
+            </h2>
+        </div>
+        <div class="border-bottom">
+            <a href="">
+                <h6>
+                    <a asp-controller="Users" asp-action="GetOneUser" asp-route-oneuserId="@a.UserId"
+                        class="text-@themeOpposite text-decoration-none">
+                        Sold by: @a.Creator.FirstName @a.Creator.LastName
+                    </a>
+                </h6>
+            </a>
+        </div>
+        <div class="card-text border-bottom">
+            <h6>Bids: @a.Bids.Count</h6>
+            <h6>Highest Bid: $@a.HighBid</h6>
+            <h6>Buy it Now: $@a.BuyNow</h6>
+        </div>
+        <div>
+            <h6>Time Left: <span>@(a.TimeRemaining()
+                    .ToString(@"d\ \d\ h\ \h\ mm\ \m"))</span></h6>
+            <h6>End Time: @a.StringDate()</h6>
+        </div>
+    </div>
+</div>
+    }
+}

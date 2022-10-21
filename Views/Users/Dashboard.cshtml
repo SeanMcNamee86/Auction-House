@@ -1,0 +1,117 @@
+@model List<Auction>
+
+@{
+    string? themeOpposite = @Context.Session.GetString("ThemeOpposite").ToLower();
+    string? theme = @Context.Session.GetString("Theme").ToLower();
+}
+
+<div class="d-flex flex-row justify-content-center mt-5 mb-5">
+    <div class="border-end">
+        <h1 class="text-primary text-center">My Auctions</h1>
+        @foreach (Auction auctions in Model)
+        {
+            @if (auctions.Creator.UserId == Context.Session.GetInt32("UUID"))
+            {
+
+                <div class="card bg-@theme shadow-lg-@themeOpposite m-3 p-4 d-flex flex-row align-items-center">
+                    <div>
+                        <a asp-controller="Auction" asp-action="GetOneAuction" asp-route-oneAuctionId="@auctions.AuctionId">
+                            <img class="dashImg border border-@themeOpposite border-1" src="@auctions.ImgURL" alt="Auction Img">
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-title border-bottom">
+                            <h3>
+                                <a asp-controller="Auction" asp-action="GetOneAuction"
+                            asp-route-oneauctionId="@auctions.AuctionId"
+                            class="text-@themeOpposite text-decoration-none">
+                                    @auctions.Name
+                                </a>
+                            </h3>
+                        </div>
+                        <div class="card-text text-muted">
+                            <h6>
+                                High Bid: $@auctions.HighBid | Bids: @auctions.Bids.Count
+                            </h6>
+                        </div>
+                        <div class="card-text text-muted">
+                            <h6>
+                                @if (auctions.TimeRemaining() == (DateTime.Now - DateTime.Now))
+                                {
+                                    <span class="text-danger">This auction has expired!</span>
+                                }
+                                else
+                                {
+                                    <span>Time Left: @(auctions.TimeRemaining().ToString(@"d\ \d\ h\ \h\ mm\ \m"))</span>
+                                }
+                            </h6>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+
+    </div>
+    <div>
+        <h1 class="text-primary text-center">My Bids</h1>
+        @foreach (Auction auctions in Model)
+        {
+            @foreach (Bid myBid in auctions.Bids)
+                @if (myBid != null)
+                {
+                    @if (myBid.UserId == Context.Session.GetInt32("UUID"))
+                    {
+                        <div class="card bg-@theme shadow-lg-@themeOpposite m-3 p-4 d-flex flex-row align-items-center">
+                            <div>
+                                <a asp-controller="Auction" asp-action="GetOneAuction" asp-route-oneAuctionId="@auctions.AuctionId">
+                                    <img class="dashImg border border-@themeOpposite border-1" src="@auctions.ImgURL" alt="Auction Img">
+                                </a>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-title border-bottom">
+                                    <h3>
+                                        <a asp-controller="Auction" asp-action="GetOneAuction"
+                            asp-route-oneauctionId="@auctions.AuctionId"
+                            class="text-@themeOpposite text-decoration-none">
+                                            @auctions.Name
+                                        </a>
+                                    </h3>
+                                </div>
+                                <div class="card-text text-muted">
+                                    @if (auctions.HighBid == myBid.Amount)
+                                    {
+                                        <h6 class="text-success">
+                                            You are winning!
+                                        </h6>
+                                        <h6>
+                                            My Bid: $@myBid.Amount | <a href="#">Buy Now</a>: $@auctions.BuyNow
+                                        </h6>
+                                    }
+                                    else
+                                    {
+                                        <h6 class="text-danger">
+                                            You have been out bid!
+                                        </h6>
+                                        <h6 class="text-danger">
+                                            New high bid: $@auctions.HighBid
+                                        </h6>
+                                        <h6>
+                                            My Bid: $@myBid.Amount | <a href="#">Buy Now</a>: $@auctions.BuyNow
+                                        </h6>
+                                    }
+                                </div>
+                                <div class="card-text text-muted">
+                                    <h6>
+                                        Time Left:
+                                        <span>
+                                            @(myBid.Auction.TimeRemaining().ToString(@"d\ \d\ h\ \h\ mm\ \m"))
+                                        </span>
+                                    </h6>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+        }
+    </div>
+</div>
